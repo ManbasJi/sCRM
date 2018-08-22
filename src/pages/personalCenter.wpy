@@ -1,0 +1,70 @@
+<template>
+	<view class="top_container">
+		<image class="logo" src="{{logo}}"></image>
+		<text>{{firstName}}</text>
+	</view>
+	<view class="rectangle_container">
+		<text>用  户  数</text>
+		<text>{{userNum}}</text>
+	</view>
+	<view class="rectangle_container">
+		<text>到期时间</text>
+		<text>{{expiryTime}}</text>
+	</view>	
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class PersonalCenter extends wepy.page{
+	config = {
+		navigationBarTitleText:'我的'
+	}
+
+	data = {
+		firstName:'智灵科技',
+		logo:'../images/zhiling_logo.png',
+		expiryTime:'2019-08-19',
+		userNum:'10'
+	}
+}
+</script>
+
+<style lang="less">
+	.top_container{
+		display:flex;
+		flex-direction:row;
+		align-items:center;
+		width:100%;
+		height:228rpx;
+		line-height:228rpx;
+		margin-top:20rpx;
+		background:#fff;
+		.logo{
+			width:150rpx;
+			height:150rpx;
+			margin-left:74rpx;
+		}
+		text{
+			margin-left:56rpx;
+			font-size:40rpx;
+			color:#101010;
+		}
+	}
+
+	.rectangle_container{
+		display:flex;
+		justify-content:space-between;
+		width:100%;
+		height:100rpx;
+		line-height:100rpx;
+		background:#fff;
+		font-size:32rpx;
+		margin-top:20rpx;
+		box-shadow: 2rpx 2rpx 2rpx 2rpx #DCE6EE;
+		text{
+			margin:0rpx 40rpx;
+			color:#666;
+		}
+	}
+
+</style>

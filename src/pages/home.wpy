@@ -1,0 +1,90 @@
+<template>
+	<view class="font">信息查询</view>
+	<view class="model">
+		<view class="model_child">
+			<i class="iconfont icon-order" style="color:#0175fd"></i>
+			<text>订单查询</text>
+		</view>
+		<view class="model_child">
+			<i class="iconfont icon-goods" style="color:#ffc400"></i>
+			<text>商品查询</text>			
+		</view>
+	</view>
+	<view class="font">库存</view>
+	<view class="model">
+		<view class="model_child">
+			<i class="iconfont icon-stock" style="color:#cddc39"></i>
+			<text>库存管理</text>
+		</view>
+	</view>
+	<view class="font">财务</view>
+	<view class="model">
+		<view class="model_child">
+			<i class="iconfont icon-pay" style="color:#e51c23"></i>
+			<text>应付管理</text>
+		</view>
+		<view class="model_child">
+			<i class="iconfont icon-gather" style="color:#259b24"></i>
+			<text>应收管理</text>			
+		</view>
+		<view class="model_child">
+			<i class="iconfont icon-balance" style="color:#ffc400"></i>
+			<text>余额管理</text>			
+		</view>
+	</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class Home extends wepy.page{
+	config = {
+		navigationBarTitleText: '首页',
+		navigationBarBackgroundColor: '#F8F9FC',
+	}
+
+	data = {
+
+	}
+}
+</script>
+
+<style lang="less">
+page{
+}
+.font{
+	font-size:36rpx;
+	color:#999;
+	margin-left:3%;
+	margin-top:60rpx;
+}
+.model{
+	display:flex;
+	flex-direction:row;
+	flex-wrap:wrap;
+	margin-top:40rpx;
+}
+.model_child{
+	display:flex;
+	flex-direction:row;
+	align-items:center;
+	width:45%;
+	height:160rpx;
+	line-height:160rpx;
+	background:#fff;
+	margin-left:3%;
+	margin-bottom:20rpx;
+	border-radius:16rpx;
+	box-shadow: 2rpx 2rpx 2rpx 2rpx #DCE6EE;
+	i{
+		font-size:96rpx;
+		margin-left:32rpx;
+	}
+	text{
+		margin-left:20rpx;
+		font-size:36rpx;
+		color:#333;
+	}	
+}
+
+	
+</style>

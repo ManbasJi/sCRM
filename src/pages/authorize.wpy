@@ -1,0 +1,55 @@
+<template>
+	<view class="btn-authorize">
+		<button open-type="getUserInfo" type="primary" lang="zh_CN" bindgetuserinfo="onGotUserInfo">授权</button>
+	</view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import {USER_INFO,SYSTEM_INFO} from '@/utils/constant'
+export default class Authorize extends wepy.page{
+	config = {
+		navigationBarTitleText: '授权登录',
+	}
+
+	data = {
+		AppId:'wx27b5d7e06dbe2064'
+	}
+
+	async onLoad(){
+		let that = this;
+		//判断用户是否配置设置
+		let resSetting = await wepy.getSetting();
+		console.log(resSetting)
+		if((resSetting.authSetting)['scope.userInfo']){
+		}
+	}	
+
+	async onGotUserInfo(e){
+		let that = this;
+		if(e.detail.errMsg == 'getUserInfo:ok'){
+			let res = await wepy.login();
+			console.log("用户登录信息:");
+			console.log(res);
+			if(res.code){
+				console.log(e.detail);
+				// 存储用户信息到本地
+				wepy.setStorageSync(USER_INFO,e.detail.userInfo);
+				let systemInfo = wepy.getSystemInfoSync();
+				// 存储系统信息到本地
+				wepy.setStorageSync(SYSTEM_INFO,systemInfo);
+				wepy.switchTab({
+					url:'/pages/home'
+				})
+			}
+		}
+	}
+}
+</script>
+
+<style lang="less">
+	button{
+		width:90%;
+		margin-top:80rpx;
+	}
+</style>
