@@ -11,6 +11,7 @@ import 'wepy-async-function'
 export default class extends wepy.app {
   config = {
     pages: [
+      'pages/orderSearch',
       'pages/authorize',
       'pages/home',
       'pages/personalCenter',
