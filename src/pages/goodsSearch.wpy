@@ -3,131 +3,104 @@
 	<view class="top_container">
 		<view class="search_container">
 			<i class="iconfont icon-search"></i>
-			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入客户名称" placeholder-style="color:#d6dde6" bindconfirm="searchConfirm" />
+			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入库房名称" placeholder-style="color:#d6dde6" bindconfirm="searchConfirm" />
 		</view>
 		<view class="btn_search" @tap="searchConfirm">搜索</view>
 	</view>
 	<!-- 日期选择器 -->
 	<view class="middletop_container">
-		<picker mode="date" value="{{startDate}}" start="2000-01-01" end="2030-12-31" bindchange="startDateChange">
-			<view class="startDatePicker">
-				{{startDate}}
+		<picker range="{{goodsArray}}" value="{{selectGoods}}" bindchange="bindPickerChange">
+			<view class="goodsPicker">
+				{{selectGoods}}
 				<i class="iconfont icon-sarrowbottom"></i>
 			</view>
 		</picker>
 		<text>|</text>
-		<picker mode="date" value="{{endDate}}" start="2000-01-01" end="2030-12-31" bindchange="endDateChange">
-			<view class="endDatePicker">
-				{{endDate}}
-				<i class="iconfont icon-sarrowbottom"></i>
-			</view>
-		</picker>
+		<view class="sell-price">
+				售价：{{sellPrice}}
+		</view>
 	</view>
 	<view class="line"></view>
-	<scroll-view scroll-y="true" class="swiper-item-box" bindscrolltoupper="onRefreshData" bindscrolltolower="onReachBottom" style="height:{{windowHeight-140}}px">
+	<scroll-view scroll-y="true" class="swiper-item-box" bindscrolltoupper="onRefreshData" bindscrolltolower="onReachBottom" style="height:{{windowHeight-102}}px">
 	<view class="middle_container">
 		<repeat for="{{msg}}" key="index" index="index" item="item">
 			<view class="list_item">
-				<view style="font-size:28rpx;color:#999;margin-bottom:20rpx;">
-					<text style="margin-left:30rpx;">客户名称：{{item.ddwname}}</text>
-				</view>
-				<view class="line"></view>
 				<view style="display:flex;align-items:center;justify-content:space-between;margin-top:20rpx;margin-bottom:20rpx;">
-					<text style="text-align:center;width:30%;">单号</text>
-					<text style="text-align:center;width:30%;">日期</text>
-					<text style="text-align:center;width:30%;">金额</text>
+					<text style="text-align:center;width:30%;">库房名称</text>
+					<text style="text-align:center;width:30%;">色号</text>
+					<text style="text-align:center;width:30%;">数量</text>
 				</view>
 				<view class="line"></view>
 				<repeat for="{{item.dataItem}}" key="index" index="index" item="items">
-					<view @tap.stop="onItemClick" data-item="items" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
-						<text style="text-align:center;width:30%;">{{items.danjbh}}</text>
-						<text style="text-align:center;width:30%;">{{items.riqi}}</text>
-						<text style="text-align:center;width:30%;">{{items.jine}}</text>
+					<view @tap.stop="onItemClick" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
+						<text style="text-align:center;width:30%;">{{items.wareHouseName}}</text>
+						<text style="text-align:center;width:30%;">{{items.colorNo}}</text>
+						<text style="text-align:center;width:30%;">{{items.num}}</text>
 					</view>
 				</repeat>
 			</view>
 		</repeat>
 	</view>
 	</scroll-view>
-	<view class="bottom_container">
-		订单金额总计：{{total}}
-	</view>
 </template>
 
 <script>
 import wepy from 'wepy'
-import util from '@/utils/util'
 import { SYSTEM_INFO } from '@/utils/constant'
-export default class OrderSearch extends wepy.page{
+export default class GoodsSearch extends wepy.page{
 	config = {
-		navigationBarTitleText:'订单查询'
+		navigatorBarTitleText:'商品查询'
 	}
 
 	data = {
 		windowHeight:0,
-		startDate:'2018-08-12',
-		endDate:'2020-08-12',
 		msg:[],
-		total:20156
+		goodsArray:[],
+		selectGoods:'瓷砖',
+		sellPrice:'23'
 	}
 
 	onLoad(){
-		// 获取系统屏幕高度
+	// 获取系统屏幕高度
 		let systemInfo = wx.getStorageSync(SYSTEM_INFO);			
 		if(systemInfo==null||systemInfo==""||systemInfo==undefined){
 			systemInfo = wepy.getSystemInfoSync();
        		wepy.setStorageSync(SYSTEM_INFO, systemInfo);						
 		}
 		this.windowHeight = systemInfo.windowHeight;
-		this.startDate = util.getCurrentTime('date');
-		this.endDate = util.getCurrentTime('date');
 		console.log(this.windowHeight)
+		this.initData()
+	}
 
+	bindPickerChange(e){
+		let index = e.detail.value
+		this.selectGoods = this.goodsArray[index]
+	}
+
+	initData(){
 		for(let i = 0;i<4;i++){
 			const item = {};
-			item.ddwname = "小米"
-			item.jine = "2018"
 			item.dataItem = []
 			for(let j = 0;j<5;j++){
 				const items = {}
-				if(j==3){
-					items.danjbh = "123"
-					items.riqi = "2018-08-02"
-					items.jine = "25"
-				}else{
-					items.danjbh = "123456789"
-					items.riqi = "2018-08-15"
-					items.jine = "28"	
-				}
+				items.wareHouseName = "仓库"+i
+				items.colorNo = "5201"
+				items.num = "500"
 				item.dataItem.push(items)
-		
 			}
 			this.msg.push(item)
-		}
-	}
-
-	startDateChange(e){
-		console.log(e)
-		this.startDate = e.detail.value
-	}
-
-	endDateChange(e){
-		this.endDate = e.detail.value
-	}
-
-	searchConfirm(e){
+		}	
 		
+		this.goodsArray.push('瓷砖');
+		this.goodsArray.push('木板');
+		this.goodsArray.push('隔墙玻璃');
+		this.goodsArray.push('大理石');
 	}
 
 	methods = {
-		onItemClick(e){
-			let items = e.currentTarget.dataset.items
-			wx.navigateTo({
-				url:'orderDetail'
-			})
-		}
+
 	}
-}	
+}
 </script>
 
 <style lang="less">
@@ -176,14 +149,14 @@ export default class OrderSearch extends wepy.page{
 		align-items:center;
 		justify-content:center;
 		border-top:1rpx solid #d6dde6;
-		.startDatePicker{
+		.goodsPicker{
+			font-size:36rpx;
 			margin-right:40rpx;
-			font-size:28rpx;
-			color:#666;
+			color:#666
 		}
-		.endDatePicker{
+		.sell-price{
 			margin-left:40rpx;
-			font-size:28rpx;
+			font-size:36rpx;
 			color:#666;
 		}
 		text{
@@ -209,16 +182,4 @@ export default class OrderSearch extends wepy.page{
 			padding:30rpx 30rpx;
 		}
 	}
-	.bottom_container{
-		position:absolute;
-		bottom:0;
-		width:100%;
-		font-size:36rpx;
-		height:90rpx;
-		line-height:90rpx;
-		background:#0175fd;
-		text-align:center;
-		color:#fff;
-	}
-
 </style>

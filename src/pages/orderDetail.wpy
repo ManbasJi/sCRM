@@ -1,0 +1,117 @@
+<template>
+<view class="top_container">
+		<text>单号：{{orderNo}}</text>
+		<text>客户：{{custName}}</text>
+</view>
+<scroll-view scroll-y="true" class="swiper-item-box" bindscrolltoupper="onRefreshData" bindscrolltolower="onReachBottom" style="height:{{windowHeight-50}}px">
+	<view class="middle_container">
+		<repeat for="{{msg}}" key="index" index="index" item="item">
+			<view class="list_item">
+				<view style="display:flex;align-items:center;justify-content:space-between;font-size:28rpx;color:#999;margin-bottom:20rpx;">
+					<text style="">商品：{{item.goodsName}}</text>
+					<text style="">品牌：{{item.brandName}}</text>
+					<text style="">单位：{{item.unit}}</text>
+				</view>
+				<view class="line"></view>
+				<view style="display:flex;align-items:center;justify-content:space-between;margin-top:20rpx;margin-bottom:20rpx;">
+					<text style="text-align:center;width:25%;">商品规格</text>
+					<text style="text-align:center;width:25%;">色号</text>
+					<text style="text-align:center;width:15%;">数量</text>
+					<text style="text-align:center;width:15%;">单价</text>
+					<text style="text-align:center;width:20%;">金额</text>
+				</view>
+				<view class="line"></view>
+				<repeat for="{{item.dataItem}}" key="index" index="index" item="items">
+					<view @tap.stop="onItemClick" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
+					<text style="text-align:center;width:25%;">{{items.spec}}</text>
+					<text style="text-align:center;width:25%;">{{items.colorNo}}</text>
+					<text style="text-align:center;width:15%;">{{items.num}}</text>
+					<text style="text-align:center;width:15%;">{{items.unitPrice}}</text>
+					<text style="text-align:center;width:20%;">{{items.totalPrice}}</text>
+					</view>
+				</repeat>
+			</view>
+		</repeat>
+	</view>
+	</scroll-view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import { SYSTEM_INFO } from '@/utils/constant'
+export default class OrderDetail extends wepy.page{
+	config = {
+		navigationBarTitleText:'订单详情'
+	}
+
+	data = {
+		windowHeight:0,
+		msg:[],
+		orderNo:'20180225',
+		custName:'xiaomi'
+	}
+
+	onLoad(){
+		let systemInfo = wx.getStorageSync(SYSTEM_INFO);			
+		if(systemInfo==null||systemInfo==""||systemInfo==undefined){
+			systemInfo = wepy.getSystemInfoSync();
+       		wepy.setStorageSync(SYSTEM_INFO, systemInfo);						
+		}
+		this.windowHeight = systemInfo.windowHeight;
+		console.log(this.windowHeight)
+
+		for(let i = 0;i<4;i++){
+			const item = {};
+			item.goodsName = "瓷砖"
+			item.brandName = "DIY"
+			item.unit = "块"
+			item.dataItem = []
+			for(let j = 0;j<5;j++){
+				const items = {}
+				items.spec = "5*5"
+				items.colorNo = "0521"
+				items.num = "10"
+				items.unitPrice = "50"
+				items.totalPrice = "500"	
+				item.dataItem.push(items)
+			}
+			this.msg.push(item)
+		}
+	}
+
+	methods = {
+
+	}
+}
+</script>
+
+<style lang="less">
+	.line{
+		height:1rpx;
+		width:90%;
+		margin-left:5%;
+		margin-top:-8rpx;
+		border-bottom:1rpx solid #d6dde6;
+	}
+	.top_container{
+		display:flex;
+		align-items:center;
+		justify-content:space-around;
+		height:100rpx;
+		font-size:36rpx;
+		color:#0175fd;
+		background:#fff;
+
+	}
+	.middle_container{
+		font-size:28rpx;
+		color:#666;
+		margin-top:40rpx;
+		padding:0 30rpx;
+		.list_item{
+			margin-top:30rpx;
+			background:#fff;
+			padding:30rpx 30rpx;
+		}
+	}
+</style>

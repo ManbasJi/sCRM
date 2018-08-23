@@ -1,0 +1,98 @@
+<style lang="less">
+	page{
+		background:#fff;
+	}
+	input{
+		width:80%;
+		height:80rpx;
+		border:1rpx solid #cdcdcd;
+		border-radius:8rpx;
+		margin: 0 auto;
+		margin-top:70rpx;
+		padding-left:20rpx;
+	}
+	.button{
+		width:90%;
+		background:#0175fd;
+		color:#fff;
+		margin-left:5%;
+		margin-top:100rpx;
+	}
+	.container{
+		margin-top:160rpx;
+		width:100%;
+	}
+</style>
+
+<template>
+	<view class="container">
+	<form>
+		<input type="text" name="account" placeholder="用户名" bindblur="bindAccount" />
+		<input type="password" name="pwd" placeholder="密码" bindblur="bindPwd" />
+		<button class="button" open-type="getUserInfo" lang="zh_CN" bindgetuserinfo="onGotUserInfo">登录</button>
+	</form>
+	</view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import tip from '@/utils/tip'
+import {USER_INFO,SYSTEM_INFO} from '@/utils/constant'
+export default class Login extends wepy.page{
+	config = {
+		navigationBarTitleText:'登录',
+	}
+
+	data = {
+		account:'',
+		password:''
+	}
+
+	async onLoad(opts){
+		//判断用户是否配置设置
+		let resSetting = await wepy.getSetting();
+		console.log(resSetting)
+		if((resSetting.authSetting)['scope.userInfo']){
+		}
+	}
+
+	async onGotUserInfo(e){
+		let that = this;
+		if(e.detail.errMsg == 'getUserInfo:ok'){
+			let res = await wepy.login();
+			console.log("用户登录信息:");
+			console.log(res);
+			if(res.code){
+				console.log(e.detail);
+				// 存储用户信息到本地
+				wepy.setStorageSync(USER_INFO,e.detail.userInfo);
+				let systemInfo = wepy.getSystemInfoSync();
+				// 存储系统信息到本地
+				wepy.setStorageSync(SYSTEM_INFO,systemInfo);
+			}
+		}
+
+		if(this.account == ''){
+			tip.toast("用户名不能为空!")
+			return
+		}
+		if(this.pwd == ''){
+			tip.toast("密码不能为空!")
+			return
+		}
+
+		wepy.switchTab({
+			url:'/pages/home'
+		})
+
+	}
+
+	bindAccount(e){
+		this.account = e.detail.value
+	}
+
+	bindPwd(e){
+		this.pwd = e.detail.value
+	}
+}
+</script>

@@ -1,33 +1,33 @@
 <template>
 	<view class="font">信息查询</view>
 	<view class="model">
-		<view class="model_child">
+		<view class="model_child" @tap="onOrderSearchClick">
 			<i class="iconfont icon-order" style="color:#0175fd"></i>
 			<text>订单查询</text>
 		</view>
-		<view class="model_child">
+		<view class="model_child" @tap="onGoodsSearchClick">
 			<i class="iconfont icon-goods" style="color:#ffc400"></i>
 			<text>商品查询</text>			
 		</view>
 	</view>
 	<view class="font">库存</view>
 	<view class="model">
-		<view class="model_child">
+		<view class="model_child" @tap="onStopClick">
 			<i class="iconfont icon-stock" style="color:#cddc39"></i>
 			<text>库存管理</text>
 		</view>
 	</view>
 	<view class="font">财务</view>
 	<view class="model">
-		<view class="model_child">
+		<view class="model_child" @tap="onStopClick">
 			<i class="iconfont icon-pay" style="color:#e51c23"></i>
 			<text>应付管理</text>
 		</view>
-		<view class="model_child">
+		<view class="model_child" @tap="onStopClick">
 			<i class="iconfont icon-gather" style="color:#259b24"></i>
 			<text>应收管理</text>			
 		</view>
-		<view class="model_child">
+		<view class="model_child" @tap="onStopClick">
 			<i class="iconfont icon-balance" style="color:#ffc400"></i>
 			<text>余额管理</text>			
 		</view>
@@ -36,6 +36,7 @@
 
 <script>
 import wepy from 'wepy'
+import tip from '@/utils/tip'
 export default class Home extends wepy.page{
 	config = {
 		navigationBarTitleText: '首页',
@@ -44,6 +45,24 @@ export default class Home extends wepy.page{
 
 	data = {
 
+	}
+
+	methods = {
+		onOrderSearchClick(){
+			wx.navigateTo({
+				url:'orderSearch'
+			})
+		},
+
+		onGoodsSearchClick(){
+			wx.navigateTo({
+				url:'goodsSearch'
+			})
+		},
+
+		onStopClick(){
+			tip.toast("功能开发中")
+		}
 	}
 }
 </script>
