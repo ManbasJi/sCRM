@@ -47,8 +47,8 @@
 	
 	<view class="modalDlg_cust" wx:if="{{showGoodsSearch}}">
 		<scroll-view scroll-y="true" style="height:200px">
-		<repeat for="{{searchCustNameList}}" key="index" index="index" item="item">
-			<view style="height:50px;line-height:50px" data-index="{{index}}" @tap="onCustNameClick">{{item.ddwname}}</view>
+		<repeat for="{{searchGoodsArray}}" key="index" index="index" item="item">
+			<view style="height:50px;line-height:50px" data-index="{{index}}" @tap="onCustNameClick">{{item.dspname}}</view>
 		</repeat>
 		</scroll-view>
 	</view>
@@ -93,19 +93,19 @@ export default class GoodsSearch extends wepy.page{
 
 	initData(){
 		// 加载所有仓库信息
-		for(const a = 0;a<4;a++){
+		for(let b = 0;b<4;b++){
 			let item = {}
-			item.dkfid = a
-			item.dkfName = '库房'+a
+			item.dkfid = b
+			item.dkfName = '库房'+b
 			this.wareArray.push(item)			
 		} 
 		
-		for(const i = 0;i<4;i++){
+		for(let i = 0;i<4;i++){
 			const item = {};
 			item.dataItem = []
 			for(let j = 0;j<5;j++){
 				const items = {}
-				items.wareHouseName = "仓库"+a
+				items.wareHouseName = "仓库"+j
 				items.colorNo = "5201"
 				items.num = "500"
 				item.dataItem.push(items)
@@ -120,36 +120,32 @@ export default class GoodsSearch extends wepy.page{
 
 	searchConfirm(){
 		if(this.searchContent==''){
-			tip.toast('请输入要查询的客户名称')
+			tip.toast('请输入要查询的商品名称')
 			return
 		}
 		// 调用查询客户名称接口
 		// 模拟返回数据信息
 		for(let i = 0;i<8;i++){
 			let item = {};
-			item.ddwid = i;
-			item.ddwname = this.searchContent+i
-			item.ddwcode = 'code'+i
-			item.yingshye = 20+i
-			this.searchCustNameList.push(item)
+			item.dspid = i;
+			item.dspname = this.searchContent+i
+			item.dspcode = 'code'+i
+			item.docsp = 20+i
+			this.searchGoodsArray.push(item)
 		}
-		console.log("searchCustNameList===",this.searchCustNameList)
+		console.log("searchGoodsArray===",this.searchGoodsArray)
 
-		if(this.searchCustNameList.length<=1){
+		if(this.searchGoodsArray.length<=1){
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
 			this.onLoadOrderMsg()
 		}else{
 			// 多条客户数据，显示弹窗
-			 this.showCustSearch = true
+			 this.showGoodsSearch = true
 		}
 	}
 
 	methods = {
-		searchConfirm(e){
-			this.showGoodsSearch = true
-
-		}
 
 	}
 }
@@ -233,5 +229,27 @@ export default class GoodsSearch extends wepy.page{
 			background:#fff;
 			padding:30rpx 30rpx;
 		}
+	}
+	.attrmask{
+		width:100%;
+		height:100%;
+		position: fixed;
+		top: 0;
+		left: 0;
+		background:#000;
+		z-index:9000;
+		opacity:0.4;
+	}
+	.modalDlg_cust{
+		width:60%;
+		height:200px;
+		position:fixed;
+		top:50%;
+		left:0;
+		z-index: 9999;
+    	margin: -370rpx 20%;
+		border-radius:5rpx;
+		background:#fff;
+		text-align:center;
 	}
 </style>
