@@ -3,15 +3,15 @@
 	<view class="top_container">
 		<view class="search_container">
 			<i class="iconfont icon-search"></i>
-			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入库房名称" placeholder-style="color:#d6dde6" bindconfirm="searchConfirm" />
+			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入商品名称" placeholder-style="color:#d6dde6"  bindconfirm="searchConfirm" bindblur="inputFinish" />
 		</view>
 		<view class="btn_search" @tap="searchConfirm">搜索</view>
 	</view>
-	<!-- 日期选择器 -->
+	<!-- 库房选择器 -->
 	<view class="middletop_container">
-		<picker range="{{goodsArray}}" value="{{selectGoods}}" bindchange="bindPickerChange">
-			<view class="goodsPicker">
-				{{selectGoods}}
+		<picker range="{{wareArray}}" value="{{selectWare}}" bindchange="bindPickerChange">
+			<view class="warePicker">
+				{{selectWare}}
 				<i class="iconfont icon-sarrowbottom"></i>
 			</view>
 		</picker>
@@ -42,22 +42,36 @@
 		</repeat>
 	</view>
 	</scroll-view>
+
+	<view class="attrmask" catchouchmove="preventTouchMove" @tap="touchCustMask" wx:if="{{showCustSearch}}"></view>
+	
+	<view class="modalDlg_cust" wx:if="{{showGoodsSearch}}">
+		<scroll-view scroll-y="true" style="height:200px">
+		<repeat for="{{searchCustNameList}}" key="index" index="index" item="item">
+			<view style="height:50px;line-height:50px" data-index="{{index}}" @tap="onCustNameClick">{{item.ddwname}}</view>
+		</repeat>
+		</scroll-view>
+	</view>
 </template>
 
 <script>
 import wepy from 'wepy'
 import { SYSTEM_INFO } from '@/utils/constant'
+import tip from '@/utils/tip'
 export default class GoodsSearch extends wepy.page{
 	config = {
-		navigatorBarTitleText:'商品查询'
+		navigationBarTitleText:'商品查询'
 	}
 
 	data = {
 		windowHeight:0,
 		msg:[],
-		goodsArray:[],
-		selectGoods:'瓷砖',
-		sellPrice:'23'
+		searchGoodsArray:[],
+		wareArray:[],
+		selectWare:'',
+		sellPrice:'23',
+		showGoodsSearch:false,
+		searchContent:''
 	}
 
 	onLoad(){
@@ -74,30 +88,68 @@ export default class GoodsSearch extends wepy.page{
 
 	bindPickerChange(e){
 		let index = e.detail.value
-		this.selectGoods = this.goodsArray[index]
+		this.selectWare = this.wareArray[index]
 	}
 
 	initData(){
-		for(let i = 0;i<4;i++){
+		// 加载所有仓库信息
+		for(const a = 0;a<4;a++){
+			let item = {}
+			item.dkfid = a
+			item.dkfName = '库房'+a
+			this.wareArray.push(item)			
+		} 
+		
+		for(const i = 0;i<4;i++){
 			const item = {};
 			item.dataItem = []
 			for(let j = 0;j<5;j++){
 				const items = {}
-				items.wareHouseName = "仓库"+i
+				items.wareHouseName = "仓库"+a
 				items.colorNo = "5201"
 				items.num = "500"
 				item.dataItem.push(items)
 			}
 			this.msg.push(item)
 		}	
-		
-		this.goodsArray.push('瓷砖');
-		this.goodsArray.push('木板');
-		this.goodsArray.push('隔墙玻璃');
-		this.goodsArray.push('大理石');
+	}
+
+	inputFinish(e){
+		this.searchContent = e.detail.value
+	}
+
+	searchConfirm(){
+		if(this.searchContent==''){
+			tip.toast('请输入要查询的客户名称')
+			return
+		}
+		// 调用查询客户名称接口
+		// 模拟返回数据信息
+		for(let i = 0;i<8;i++){
+			let item = {};
+			item.ddwid = i;
+			item.ddwname = this.searchContent+i
+			item.ddwcode = 'code'+i
+			item.yingshye = 20+i
+			this.searchCustNameList.push(item)
+		}
+		console.log("searchCustNameList===",this.searchCustNameList)
+
+		if(this.searchCustNameList.length<=1){
+			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
+			// 调用接口
+			this.onLoadOrderMsg()
+		}else{
+			// 多条客户数据，显示弹窗
+			 this.showCustSearch = true
+		}
 	}
 
 	methods = {
+		searchConfirm(e){
+			this.showGoodsSearch = true
+
+		}
 
 	}
 }
@@ -149,7 +201,7 @@ export default class GoodsSearch extends wepy.page{
 		align-items:center;
 		justify-content:center;
 		border-top:1rpx solid #d6dde6;
-		.goodsPicker{
+		.warePicker{
 			font-size:36rpx;
 			margin-right:40rpx;
 			color:#666

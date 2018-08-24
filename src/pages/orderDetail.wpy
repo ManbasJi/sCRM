@@ -8,9 +8,9 @@
 		<repeat for="{{msg}}" key="index" index="index" item="item">
 			<view class="list_item">
 				<view style="display:flex;align-items:center;justify-content:space-between;font-size:28rpx;color:#999;margin-bottom:20rpx;">
-					<text style="">商品：{{item.goodsName}}</text>
-					<text style="">品牌：{{item.brandName}}</text>
-					<text style="">单位：{{item.unit}}</text>
+					<text style="">商品：{{item.dspName}}</text>
+					<text style="">品牌：{{item.pinpai}}</text>
+					<text style="">单位：{{item.danwei}}</text>
 				</view>
 				<view class="line"></view>
 				<view style="display:flex;align-items:center;justify-content:space-between;margin-top:20rpx;margin-bottom:20rpx;">
@@ -23,11 +23,11 @@
 				<view class="line"></view>
 				<repeat for="{{item.dataItem}}" key="index" index="index" item="items">
 					<view @tap.stop="onItemClick" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
-					<text style="text-align:center;width:25%;">{{items.spec}}</text>
-					<text style="text-align:center;width:25%;">{{items.colorNo}}</text>
-					<text style="text-align:center;width:15%;">{{items.num}}</text>
-					<text style="text-align:center;width:15%;">{{items.unitPrice}}</text>
-					<text style="text-align:center;width:20%;">{{items.totalPrice}}</text>
+					<text style="text-align:center;width:25%;">{{items.dspspgg}}</text>
+					<text style="text-align:center;width:25%;">{{items.color}}</text>
+					<text style="text-align:center;width:15%;">{{items.shul}}</text>
+					<text style="text-align:center;width:15%;">{{items.danwei}}</text>
+					<text style="text-align:center;width:20%;">{{items.jine}}</text>
 					</view>
 				</repeat>
 			</view>
@@ -62,17 +62,17 @@ export default class OrderDetail extends wepy.page{
 
 		for(let i = 0;i<4;i++){
 			const item = {};
-			item.goodsName = "瓷砖"
-			item.brandName = "DIY"
-			item.unit = "块"
+			item.dspName = "瓷砖"
+			item.pinpai = "DIY"
+			item.danwei = "块"
 			item.dataItem = []
 			for(let j = 0;j<5;j++){
 				const items = {}
-				items.spec = "5*5"
-				items.colorNo = "0521"
-				items.num = "10"
-				items.unitPrice = "50"
-				items.totalPrice = "500"	
+				items.dspspgg = "5*5"
+				items.color = "0521"
+				items.shul = "10"
+				items.danjia = "50"
+				items.jine = "500"	
 				item.dataItem.push(items)
 			}
 			this.msg.push(item)

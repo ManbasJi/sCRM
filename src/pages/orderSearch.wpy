@@ -3,7 +3,7 @@
 	<view class="top_container">
 		<view class="search_container">
 			<i class="iconfont icon-search"></i>
-			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入客户名称" placeholder-style="color:#d6dde6" bindconfirm="searchConfirm" />
+			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入客户名称" placeholder-style="color:#d6dde6" bindblur="inputFinish" bindconfirm="searchConfirm" />
 		</view>
 		<view class="btn_search" @tap="searchConfirm">搜索</view>
 	</view>
@@ -52,11 +52,22 @@
 	<view class="bottom_container">
 		订单金额总计：{{total}}
 	</view>
+
+	<view class="attrmask" catchouchmove="preventTouchMove" @tap="touchCustMask" wx:if="{{showCustSearch}}"></view>
+	
+	<view class="modalDlg_cust" wx:if="{{showCustSearch}}">
+		<scroll-view scroll-y="true" style="height:200px">
+		<repeat for="{{searchCustNameList}}" key="index" index="index" item="item">
+			<view style="height:50px;line-height:50px" data-index="{{index}}" @tap="onCustNameClick">{{item.ddwname}}</view>
+		</repeat>
+		</scroll-view>
+		</view>
 </template>
 
 <script>
 import wepy from 'wepy'
 import util from '@/utils/util'
+import tip from '@/utils/tip'
 import { SYSTEM_INFO } from '@/utils/constant'
 export default class OrderSearch extends wepy.page{
 	config = {
@@ -68,7 +79,11 @@ export default class OrderSearch extends wepy.page{
 		startDate:'2018-08-12',
 		endDate:'2020-08-12',
 		msg:[],
-		total:20156
+		total:20156,
+		showCustSearch:false,
+		searchCustNameList:[],
+
+		searchContent:''
 	}
 
 	onLoad(){
@@ -83,6 +98,57 @@ export default class OrderSearch extends wepy.page{
 		this.endDate = util.getCurrentTime('date');
 		console.log(this.windowHeight)
 
+		// for(let a = 0;a<8;a++){
+		// 	this.searchCustNameList.push("item"+a)
+		// }
+	}
+
+	startDateChange(e){
+		console.log(e)
+		this.startDate = e.detail.value
+	}
+
+	endDateChange(e){
+		this.endDate = e.detail.value
+	}
+
+	searchConfirm(e){
+		console.log("searchConfirm Event")
+		if(this.searchContent==''){
+			tip.toast('请输入要查询的客户名称')
+			return
+		}
+		// 调用查询客户名称接口
+		// 模拟返回数据信息
+		for(let i = 0;i<8;i++){
+			let item = {};
+			item.ddwid = i;
+			item.ddwname = this.searchContent+i
+			item.ddwcode = 'code'+i
+			item.yingshye = 20+i
+			this.searchCustNameList.push(item)
+		}
+		console.log("searchCustNameList===",this.searchCustNameList)
+
+		if(this.searchCustNameList.length<=1){
+			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
+			// 调用接口
+			this.onLoadOrderMsg()
+		}else{
+			// 多条客户数据，显示弹窗
+			 this.showCustSearch = true
+		}
+		
+	}
+
+	inputFinish(e){
+		this.searchContent = e.detail.value
+	}
+
+	/**
+	 * 加载客户名称数据
+	 */
+	async onLoadOrderMsg(sq,eq,custId,page){
 		for(let i = 0;i<4;i++){
 			const item = {};
 			item.ddwname = "小米"
@@ -100,24 +166,11 @@ export default class OrderSearch extends wepy.page{
 					items.jine = "28"	
 				}
 				item.dataItem.push(items)
-		
 			}
 			this.msg.push(item)
 		}
-	}
-
-	startDateChange(e){
-		console.log(e)
-		this.startDate = e.detail.value
-	}
-
-	endDateChange(e){
-		this.endDate = e.detail.value
-	}
-
-	searchConfirm(e){
-		
-	}
+		this.$apply()
+	}	
 
 	methods = {
 		onItemClick(e){
@@ -125,6 +178,16 @@ export default class OrderSearch extends wepy.page{
 			wx.navigateTo({
 				url:'orderDetail'
 			})
+		},
+		touchCustMask(e){
+			this.showCustSearch = false
+		},
+		onCustNameClick(e){
+			let index = e.currentTarget.dataset.index
+			let custId = this.searchCustNameList[index].ddwid
+			this.searchContent = this.searchCustNameList[index].ddwname
+			this.onLoadOrderMsg(this.startDate,this.endDate,custId,0)
+			this.showCustSearch = false
 		}
 	}
 }	
@@ -219,6 +282,28 @@ export default class OrderSearch extends wepy.page{
 		background:#0175fd;
 		text-align:center;
 		color:#fff;
+	}
+	.attrmask{
+		width:100%;
+		height:100%;
+		position: fixed;
+		top: 0;
+		left: 0;
+		background:#000;
+		z-index:9000;
+		opacity:0.4;
+	}
+	.modalDlg_cust{
+		width:60%;
+		height:200px;
+		position:fixed;
+		top:50%;
+		left:0;
+		z-index: 9999;
+    	margin: -370rpx 20%;
+		border-radius:5rpx;
+		background:#fff;
+		text-align:center;
 	}
 
 </style>
