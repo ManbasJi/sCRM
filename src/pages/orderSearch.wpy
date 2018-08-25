@@ -48,6 +48,11 @@
 			</view>
 		</repeat>
 	</view>
+	<view style="text-align:center;margin-top:100rpx;" wx:if="{{isEmpty}}">
+		<i class="iconfont icon-error" style="font-size:90rpx;color:#dce6ee"></i>
+		<view></view>
+		<text style="font-size:30rpx;color:#dce6ee">没有数据</text>
+	</view>
 	</scroll-view>
 	<view class="bottom_container">
 		订单金额总计：{{total}}
@@ -82,8 +87,10 @@ export default class OrderSearch extends wepy.page{
 		total:20156,
 		showCustSearch:false,
 		searchCustNameList:[],
-
-		searchContent:''
+		isEmpty:false,
+		searchContent:'',
+		custId:'',
+		currentPage:0
 	}
 
 	onLoad(){
@@ -97,7 +104,7 @@ export default class OrderSearch extends wepy.page{
 		this.startDate = util.getCurrentTime('date');
 		this.endDate = util.getCurrentTime('date');
 		console.log(this.windowHeight)
-
+		this.onLoadOrderMsg(this.startDate,this.endDate,null,this.currentPage)
 		// for(let a = 0;a<8;a++){
 		// 	this.searchCustNameList.push("item"+a)
 		// }
@@ -131,6 +138,7 @@ export default class OrderSearch extends wepy.page{
 		console.log("searchCustNameList===",this.searchCustNameList)
 
 		if(this.searchCustNameList.length<=1){
+			this.custId = this.searchCustNameList[0].ddwid
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
 			this.onLoadOrderMsg()
@@ -149,6 +157,9 @@ export default class OrderSearch extends wepy.page{
 	 * 加载客户名称数据
 	 */
 	async onLoadOrderMsg(sq,eq,custId,page){
+		if(page==0){
+			this.msg = [];
+		}
 		for(let i = 0;i<4;i++){
 			const item = {};
 			item.ddwname = "小米"
@@ -169,8 +180,23 @@ export default class OrderSearch extends wepy.page{
 			}
 			this.msg.push(item)
 		}
+		if(this.msg.length<=0){
+			this.isEmpty = true
+		}else{
+			this.isEmpty = false
+		}
 		this.$apply()
+	}
+
+	onRefreshData(){
+		this.currentPage = 0
+		this.onLoadOrderMsg(this.startDate,this.endDate,this.custId,this.currentPage)
 	}	
+
+	onReachBottom(){
+		this.currentTarget++
+		this.onLoadOrderMsg(this.startDate,this.endDate,this.custId,this.currentPage)
+	}
 
 	methods = {
 		onItemClick(e){
@@ -184,9 +210,9 @@ export default class OrderSearch extends wepy.page{
 		},
 		onCustNameClick(e){
 			let index = e.currentTarget.dataset.index
-			let custId = this.searchCustNameList[index].ddwid
+			this.custId = this.searchCustNameList[index].ddwid
 			this.searchContent = this.searchCustNameList[index].ddwname
-			this.onLoadOrderMsg(this.startDate,this.endDate,custId,0)
+			this.onLoadOrderMsg(this.startDate,this.endDate,this.custId,0)
 			this.showCustSearch = false
 		}
 	}

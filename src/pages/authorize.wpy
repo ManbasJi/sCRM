@@ -1,6 +1,6 @@
 <template>
 	<view class="btn-authorize">
-		<button open-type="getUserInfo" type="primary" lang="zh_CN" bindgetuserinfo="onGotUserInfo">授权</button>
+		<button class="button" open-type="getUserInfo" lang="zh_CN" bindgetuserinfo="onGotUserInfo">bulingbuling ~</button>
 	</view>
 </template>
 
@@ -48,8 +48,11 @@ export default class Authorize extends wepy.page{
 </script>
 
 <style lang="less">
-	button{
+	.button{
 		width:90%;
-		margin-top:80rpx;
+		background:#0175fd;
+		color:#fff;
+		margin-left:5%;
+		margin-top:100rpx;
 	}
 </style>

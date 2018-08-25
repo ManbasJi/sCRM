@@ -9,7 +9,7 @@
 	</view>
 	<!-- 库房选择器 -->
 	<view class="middletop_container">
-		<picker range="{{wareArray}}" value="{{selectWare}}" bindchange="bindPickerChange">
+		<picker range="{{wareNameArray}}" value="{{selectWare}}" bindchange="bindPickerChange">
 			<view class="warePicker">
 				{{selectWare}}
 				<i class="iconfont icon-sarrowbottom"></i>
@@ -33,18 +33,23 @@
 				<view class="line"></view>
 				<repeat for="{{item.dataItem}}" key="index" index="index" item="items">
 					<view @tap.stop="onItemClick" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
-						<text style="text-align:center;width:30%;">{{items.wareHouseName}}</text>
-						<text style="text-align:center;width:30%;">{{items.colorNo}}</text>
-						<text style="text-align:center;width:30%;">{{items.num}}</text>
+						<text style="text-align:center;width:30%;">{{items.dkfname}}</text>
+						<text style="text-align:center;width:30%;">{{items.color}}</text>
+						<text style="text-align:center;width:30%;">{{items.kcsl}}</text>
 					</view>
 				</repeat>
 			</view>
 		</repeat>
 	</view>
+	<view style="text-align:center;margin-top:100rpx;" wx:if="{{isEmpty}}">
+		<i class="iconfont icon-error" style="font-size:90rpx;color:#dce6ee"></i>
+		<view></view>
+		<text style="font-size:30rpx;color:#dce6ee">没有数据</text>
+	</view>
 	</scroll-view>
 
-	<view class="attrmask" catchouchmove="preventTouchMove" @tap="touchCustMask" wx:if="{{showCustSearch}}"></view>
-	
+
+	<view class="attrmask" catchouchmove="preventTouchMove" @tap="touchCustMask" wx:if="{{showGoodsSearch}}"></view>
 	<view class="modalDlg_cust" wx:if="{{showGoodsSearch}}">
 		<scroll-view scroll-y="true" style="height:200px">
 		<repeat for="{{searchGoodsArray}}" key="index" index="index" item="item">
@@ -68,10 +73,12 @@ export default class GoodsSearch extends wepy.page{
 		msg:[],
 		searchGoodsArray:[],
 		wareArray:[],
+		wareNameArray:[],
 		selectWare:'',
-		sellPrice:'23',
+		sellPrice:'0',
 		showGoodsSearch:false,
-		searchContent:''
+		searchContent:'',
+		isEmpty:true
 	}
 
 	onLoad(){
@@ -83,35 +90,12 @@ export default class GoodsSearch extends wepy.page{
 		}
 		this.windowHeight = systemInfo.windowHeight;
 		console.log(this.windowHeight)
-		this.initData()
+		this.onLoadWareHouse()
 	}
 
 	bindPickerChange(e){
 		let index = e.detail.value
-		this.selectWare = this.wareArray[index]
-	}
-
-	initData(){
-		// 加载所有仓库信息
-		for(let b = 0;b<4;b++){
-			let item = {}
-			item.dkfid = b
-			item.dkfName = '库房'+b
-			this.wareArray.push(item)			
-		} 
-		
-		for(let i = 0;i<4;i++){
-			const item = {};
-			item.dataItem = []
-			for(let j = 0;j<5;j++){
-				const items = {}
-				items.wareHouseName = "仓库"+j
-				items.colorNo = "5201"
-				items.num = "500"
-				item.dataItem.push(items)
-			}
-			this.msg.push(item)
-		}	
+		this.selectWare = this.wareArray[index].dkfName
 	}
 
 	inputFinish(e){
@@ -123,8 +107,58 @@ export default class GoodsSearch extends wepy.page{
 			tip.toast('请输入要查询的商品名称')
 			return
 		}
-		// 调用查询客户名称接口
+		// 调用查询商品名称接口
 		// 模拟返回数据信息
+		this.searchGoodsName()
+	}
+
+	/**
+	 * @Author   manbasji
+	 * @desc  加载所有仓库信息
+	 */
+	onLoadWareHouse(){
+		// 加载所有仓库信息
+		for(let b = 0;b<4;b++){
+			let item = {}
+			item.dkfid = b
+			item.dkfName = '库房'+b
+			this.wareNameArray.push('库房'+b)
+			this.wareArray.push(item)			
+		}
+		//默认选中第一个
+		this.selectWare = this.wareArray[0].dkfName
+	}
+
+	/**
+	 * @Author   manbasji
+	 * @desc 查询商品信息接口
+	 */
+	onLoadGoodsMsg(goodsId,wareId){
+		for(let i = 0;i<4;i++){
+			const item = {};
+			item.dataItem = []
+			for(let j = 0;j<5;j++){
+				const items = {}
+				items.dkfname = "仓库"+j
+				items.color = "5201"
+				items.kcsl = "500"
+				items.hjje = ""
+				item.dataItem.push(items)
+			}
+			this.msg.push(item)
+		}
+		if(this.msg.length>0){
+			this.isEmpty = false
+		}else{
+			this.isEmpty = true
+		}		
+	}
+
+	/**
+	 * @Author   manbasji
+	 * @desc 检索商品名称接口
+	 */
+	searchGoodsName(){
 		for(let i = 0;i<8;i++){
 			let item = {};
 			item.dspid = i;
@@ -138,14 +172,21 @@ export default class GoodsSearch extends wepy.page{
 		if(this.searchGoodsArray.length<=1){
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
-			this.onLoadOrderMsg()
+			this.sellPrice = this.searchGoodsArray[0].docsp
+			this.onLoadGoodsMsg(this.searchGoodsArray[0].dspid)
 		}else{
 			// 多条客户数据，显示弹窗
-			 this.showGoodsSearch = true
+			this.showGoodsSearch = true
 		}
 	}
 
 	methods = {
+		onCustNameClick(e){
+			let index = e.currentTarget.dataset.index
+			this.sellPrice = this.searchGoodsArray[index].docsp
+			this.onLoadGoodsMsg(this.searchGoodsArray[index].dspid)
+			this.showGoodsSearch = false
+		}
 
 	}
 }
