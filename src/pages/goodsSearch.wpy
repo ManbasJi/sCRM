@@ -63,6 +63,7 @@
 import wepy from 'wepy'
 import { SYSTEM_INFO } from '@/utils/constant'
 import tip from '@/utils/tip'
+import api from '@/api/api'
 export default class GoodsSearch extends wepy.page{
 	config = {
 		navigationBarTitleText:'商品查询'
@@ -90,7 +91,8 @@ export default class GoodsSearch extends wepy.page{
 		}
 		this.windowHeight = systemInfo.windowHeight;
 		console.log(this.windowHeight)
-		this.onLoadWareHouse()
+		// this.onLoadWareHouse()
+		this.onLoadGoodsMsg('','')
 	}
 
 	bindPickerChange(e){
@@ -116,15 +118,24 @@ export default class GoodsSearch extends wepy.page{
 	 * @Author   manbasji
 	 * @desc  加载所有仓库信息
 	 */
-	onLoadWareHouse(){
+	async onLoadWareHouse(){
 		// 加载所有仓库信息
-		for(let b = 0;b<4;b++){
-			let item = {}
-			item.dkfid = b
-			item.dkfName = '库房'+b
-			this.wareNameArray.push('库房'+b)
-			this.wareArray.push(item)			
+		const json = await api.queryStoreHouse({
+			query:{
+				 fStorehouse:'1'
+			}
+		})
+		console.log("onLoadWareHouse===",json)
+		if(json.data.code==0){
+			this.wareArray = json.data.data
 		}
+		// for(let b = 0;b<4;b++){
+		// 	let item = {}
+		// 	item.dkfid = b
+		// 	item.dkfName = '库房'+b
+		// 	this.wareNameArray.push('库房'+b)
+		// 	this.wareArray.push(item)			
+		// }
 		//默认选中第一个
 		this.selectWare = this.wareArray[0].dkfName
 	}
@@ -133,7 +144,15 @@ export default class GoodsSearch extends wepy.page{
 	 * @Author   manbasji
 	 * @desc 查询商品信息接口
 	 */
-	onLoadGoodsMsg(goodsId,wareId){
+	async onLoadGoodsMsg(goodsId,wareId){
+		const json = await api.queryGoodsDetail({
+			query:{
+				fGoodsId:'DSP00000002',
+				fStorehouseId:'DKF00000001'
+			}
+		})
+		console.log("onLoadGoodsMsg===",json)
+		return
 		for(let i = 0;i<4;i++){
 			const item = {};
 			item.dataItem = []
@@ -158,15 +177,24 @@ export default class GoodsSearch extends wepy.page{
 	 * @Author   manbasji
 	 * @desc 检索商品名称接口
 	 */
-	searchGoodsName(){
-		for(let i = 0;i<8;i++){
-			let item = {};
-			item.dspid = i;
-			item.dspname = this.searchContent+i
-			item.dspcode = 'code'+i
-			item.docsp = 20+i
-			this.searchGoodsArray.push(item)
+	async searchGoodsName(){
+		const json = await api.queryGoodsName({
+			query:{
+				 fGoodsName:this.searchContent
+			}
+		})
+		console.log("searchGoodsName===",json)
+		if(json.data.code==0){
+			this.searchGoodsArray = json.data.data
 		}
+		// for(let i = 0;i<8;i++){
+		// 	let item = {};
+		// 	item.dspid = i;
+		// 	item.dspname = this.searchContent+i
+		// 	item.dspcode = 'code'+i
+		// 	item.docsp = 20+i
+		// 	this.searchGoodsArray.push(item)
+		// }
 		console.log("searchGoodsArray===",this.searchGoodsArray)
 
 		if(this.searchGoodsArray.length<=1){
@@ -178,6 +206,7 @@ export default class GoodsSearch extends wepy.page{
 			// 多条客户数据，显示弹窗
 			this.showGoodsSearch = true
 		}
+		this.$apply()
 	}
 
 	methods = {

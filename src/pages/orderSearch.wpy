@@ -39,7 +39,7 @@
 				</view>
 				<view class="line"></view>
 				<repeat for="{{item.dataItem}}" key="index" index="index" item="items">
-					<view @tap.stop="onItemClick" data-item="items" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
+					<view @tap.stop="onItemClick" data-items="{{items}}" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
 						<text style="text-align:center;width:30%;">{{items.danjbh}}</text>
 						<text style="text-align:center;width:30%;">{{items.riqi}}</text>
 						<text style="text-align:center;width:30%;">{{items.jine}}</text>
@@ -73,6 +73,7 @@
 import wepy from 'wepy'
 import util from '@/utils/util'
 import tip from '@/utils/tip'
+import api from '@/api/api'
 import { SYSTEM_INFO } from '@/utils/constant'
 export default class OrderSearch extends wepy.page{
 	config = {
@@ -119,33 +120,41 @@ export default class OrderSearch extends wepy.page{
 		this.endDate = e.detail.value
 	}
 
-	searchConfirm(e){
+	async searchConfirm(e){
 		console.log("searchConfirm Event")
 		if(this.searchContent==''){
-			tip.toast('请输入要查询的客户名称')
+			this.onLoadOrderMsg(this.startDate,this.endDate,null,0)
 			return
 		}
 		// 调用查询客户名称接口
-		// 模拟返回数据信息
-		for(let i = 0;i<8;i++){
-			let item = {};
-			item.ddwid = i;
-			item.ddwname = this.searchContent+i
-			item.ddwcode = 'code'+i
-			item.yingshye = 20+i
-			this.searchCustNameList.push(item)
+		const json = await api.queryCustName({
+			query:{
+				fName:this.searchContent
+			}
+		})
+		if(json.data.code==0){
+			this.searchCustNameList = json.data.data
 		}
+		// for(let i = 0;i<8;i++){
+		// 	let item = {};
+		// 	item.ddwid = i;
+		// 	item.ddwname = this.searchContent+i
+		// 	item.ddwcode = 'code'+i
+		// 	item.yingshye = 20+i
+		// 	this.searchCustNameList.push(item)
+		// }
 		console.log("searchCustNameList===",this.searchCustNameList)
 
 		if(this.searchCustNameList.length<=1){
 			this.custId = this.searchCustNameList[0].ddwid
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
-			this.onLoadOrderMsg()
+			this.onLoadOrderMsg(this.startDate,this.endDate,this.custId,0)
 		}else{
 			// 多条客户数据，显示弹窗
 			 this.showCustSearch = true
 		}
+		this.$apply()
 		
 	}
 
@@ -160,25 +169,41 @@ export default class OrderSearch extends wepy.page{
 		if(page==0){
 			this.msg = [];
 		}
-		for(let i = 0;i<4;i++){
-			const item = {};
-			item.ddwname = "小米"
-			item.jine = "2018"
-			item.dataItem = []
-			for(let j = 0;j<5;j++){
-				const items = {}
-				if(j==3){
-					items.danjbh = "123"
-					items.riqi = "2018-08-02"
-					items.jine = "25"
-				}else{
-					items.danjbh = "123456789"
-					items.riqi = "2018-08-15"
-					items.jine = "28"	
-				}
-				item.dataItem.push(items)
+		const json = await api.orderQuery({
+			query:{
+				fBegDate:sq,
+				fEndDate:eq,
+				fCustId:custId==null?'':custId,
+				fPage:page
 			}
-			this.msg.push(item)
+		})
+		console.log("orderQuery===",json)
+		if(json.data.code==0){
+			// 先判断遍历的这行数据跟msg中最后一行数据的ddwname是否相同，如果相同则push到msg最后一行数据的dataItem中
+			for(let i = 0; i<json.data.data.length;i++){
+				if(this.msg.length > 0){
+					if(this.msg[this.msg.length-1].ddwname == json.data.data[i].ddwname){
+						let dataItem = {}
+						dataItem.riqi = json.data.data[i].riqi
+						dataItem.danjbh = json.data.data[i].danjbh
+						dataItem.jine = json.data.data[i].jine						
+						this.msg[this.msg.length-1].dataItem.push(dataItem)
+						continue	//进入下一个循环
+					}
+				}
+				let item = {}
+				item.ddwname = json.data.data[i].ddwname
+				item.dataItem = []
+				let dataItem = {}
+				dataItem.riqi = json.data.data[i].riqi
+				dataItem.danjbh = json.data.data[i].danjbh
+				dataItem.jine = json.data.data[i].jine
+				item.dataItem.push(dataItem)
+				this.msg.push(item)
+			}
+			console.log("orderMsg==",this.msg)
+		}else{
+			tip.toast("网络连接失败！")
 		}
 		if(this.msg.length<=0){
 			this.isEmpty = true
@@ -194,15 +219,17 @@ export default class OrderSearch extends wepy.page{
 	}	
 
 	onReachBottom(){
-		this.currentTarget++
+		this.currentPage++
+		console.log("onReachBottom===",this.currentPage)
 		this.onLoadOrderMsg(this.startDate,this.endDate,this.custId,this.currentPage)
 	}
 
 	methods = {
 		onItemClick(e){
 			let items = e.currentTarget.dataset.items
+			console.log("items===",items)
 			wx.navigateTo({
-				url:'orderDetail'
+				url:'orderDetail?orderNo='+items.danjbh
 			})
 		},
 		touchCustMask(e){

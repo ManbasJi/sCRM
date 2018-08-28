@@ -39,6 +39,7 @@
 <script>
 import wepy from 'wepy'
 import { SYSTEM_INFO } from '@/utils/constant'
+import api from '@/api/api'
 export default class OrderDetail extends wepy.page{
 	config = {
 		navigationBarTitleText:'订单详情'
@@ -51,7 +52,7 @@ export default class OrderDetail extends wepy.page{
 		custName:'xiaomi'
 	}
 
-	onLoad(){
+	onLoad(opts){
 		let systemInfo = wx.getStorageSync(SYSTEM_INFO);			
 		if(systemInfo==null||systemInfo==""||systemInfo==undefined){
 			systemInfo = wepy.getSystemInfoSync();
@@ -59,24 +60,36 @@ export default class OrderDetail extends wepy.page{
 		}
 		this.windowHeight = systemInfo.windowHeight;
 		console.log(this.windowHeight)
+		console.log("orderNo===",opts)
+		this.onLoadOrderDetail(opts.orderNo)
 
-		for(let i = 0;i<4;i++){
-			const item = {};
-			item.dspName = "瓷砖"
-			item.pinpai = "DIY"
-			item.danwei = "块"
-			item.dataItem = []
-			for(let j = 0;j<5;j++){
-				const items = {}
-				items.dspspgg = "5*5"
-				items.color = "0521"
-				items.shul = "10"
-				items.danjia = "50"
-				items.jine = "500"	
-				item.dataItem.push(items)
+		// for(let i = 0;i<4;i++){
+		// 	const item = {};
+		// 	item.dspName = "瓷砖"
+		// 	item.pinpai = "DIY"
+		// 	item.danwei = "块"
+		// 	item.dataItem = []
+		// 	for(let j = 0;j<5;j++){
+		// 		const items = {}
+		// 		items.dspspgg = "5*5"
+		// 		items.color = "0521"
+		// 		items.shul = "10"
+		// 		items.danjia = "50"
+		// 		items.jine = "500"	
+		// 		item.dataItem.push(items)
+		// 	}
+		// 	this.msg.push(item)
+		// }
+	}
+
+	async onLoadOrderDetail(orderNo){
+		const json = await api.queryOrderDetail({
+			query:{
+				fNumber:orderNo
 			}
-			this.msg.push(item)
-		}
+		})
+
+		console.log(json)
 	}
 
 	methods = {
