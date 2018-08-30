@@ -21,8 +21,6 @@ export default class Authorize extends wepy.page{
 		//判断用户是否配置设置
 		let resSetting = await wepy.getSetting();
 		console.log(resSetting)
-		if((resSetting.authSetting)['scope.userInfo']){
-		}
 	}	
 
 	async onGotUserInfo(e){

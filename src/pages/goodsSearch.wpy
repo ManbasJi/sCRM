@@ -48,7 +48,6 @@
 	</view>
 	</scroll-view>
 
-
 	<view class="attrmask" catchouchmove="preventTouchMove" @tap="touchCustMask" wx:if="{{showGoodsSearch}}"></view>
 	<view class="modalDlg_cust" wx:if="{{showGoodsSearch}}">
 		<scroll-view scroll-y="true" style="height:200px">
@@ -79,7 +78,10 @@ export default class GoodsSearch extends wepy.page{
 		sellPrice:'0',
 		showGoodsSearch:false,
 		searchContent:'',
-		isEmpty:true
+		isEmpty:true,
+
+		selectGoodsId:'',
+		selectWareId:''
 	}
 
 	onLoad(){
@@ -91,13 +93,18 @@ export default class GoodsSearch extends wepy.page{
 		}
 		this.windowHeight = systemInfo.windowHeight;
 		console.log(this.windowHeight)
-		// this.onLoadWareHouse()
-		this.onLoadGoodsMsg('','')
+		this.onLoadWareHouse()
+		// this.onLoadGoodsMsg('','')
 	}
 
 	bindPickerChange(e){
 		let index = e.detail.value
 		this.selectWare = this.wareArray[index].dkfName
+		this.selectWareId = this.wareArray[index].dkfid
+		if(this.searchContent!=''){
+			this.onLoadGoodsMsg()
+		}
+		
 	}
 
 	inputFinish(e){
@@ -109,8 +116,6 @@ export default class GoodsSearch extends wepy.page{
 			tip.toast('请输入要查询的商品名称')
 			return
 		}
-		// 调用查询商品名称接口
-		// 模拟返回数据信息
 		this.searchGoodsName()
 	}
 
@@ -122,55 +127,43 @@ export default class GoodsSearch extends wepy.page{
 		// 加载所有仓库信息
 		const json = await api.queryStoreHouse({
 			query:{
-				 fStorehouse:'1'
+				 fStorehouse:''
 			}
 		})
 		console.log("onLoadWareHouse===",json)
 		if(json.data.code==0){
 			this.wareArray = json.data.data
 		}
-		// for(let b = 0;b<4;b++){
-		// 	let item = {}
-		// 	item.dkfid = b
-		// 	item.dkfName = '库房'+b
-		// 	this.wareNameArray.push('库房'+b)
-		// 	this.wareArray.push(item)			
-		// }
+		for(let i = 0;i<this.wareArray.length;i++){
+			this.wareNameArray.push(this.wareArray.dkfName)
+		}
 		//默认选中第一个
 		this.selectWare = this.wareArray[0].dkfName
+		this.selectWareId = this.wareArray[0].dkfid
+		this.$apply()
 	}
 
 	/**
 	 * @Author   manbasji
 	 * @desc 查询商品信息接口
 	 */
-	async onLoadGoodsMsg(goodsId,wareId){
+	async onLoadGoodsMsg(){
 		const json = await api.queryGoodsDetail({
 			query:{
-				fGoodsId:'DSP00000002',
-				fStorehouseId:'DKF00000001'
+				fGoodsId:this.selectGoodsId,
+				fStorehouseId:this.selectWareId
 			}
 		})
 		console.log("onLoadGoodsMsg===",json)
-		return
-		for(let i = 0;i<4;i++){
-			const item = {};
-			item.dataItem = []
-			for(let j = 0;j<5;j++){
-				const items = {}
-				items.dkfname = "仓库"+j
-				items.color = "5201"
-				items.kcsl = "500"
-				items.hjje = ""
-				item.dataItem.push(items)
-			}
-			this.msg.push(item)
+		if(json.data.code==0){
+			this.msg = json.data.code
 		}
 		if(this.msg.length>0){
 			this.isEmpty = false
 		}else{
 			this.isEmpty = true
-		}		
+		}	
+		this.$apply()	
 	}
 
 	/**
@@ -187,21 +180,14 @@ export default class GoodsSearch extends wepy.page{
 		if(json.data.code==0){
 			this.searchGoodsArray = json.data.data
 		}
-		// for(let i = 0;i<8;i++){
-		// 	let item = {};
-		// 	item.dspid = i;
-		// 	item.dspname = this.searchContent+i
-		// 	item.dspcode = 'code'+i
-		// 	item.docsp = 20+i
-		// 	this.searchGoodsArray.push(item)
-		// }
 		console.log("searchGoodsArray===",this.searchGoodsArray)
 
 		if(this.searchGoodsArray.length<=1){
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
 			this.sellPrice = this.searchGoodsArray[0].docsp
-			this.onLoadGoodsMsg(this.searchGoodsArray[0].dspid)
+			this.selectGoodsId = this.searchGoodsArray[0].dspid
+			this.onLoadGoodsMsg()
 		}else{
 			// 多条客户数据，显示弹窗
 			this.showGoodsSearch = true
@@ -213,10 +199,10 @@ export default class GoodsSearch extends wepy.page{
 		onCustNameClick(e){
 			let index = e.currentTarget.dataset.index
 			this.sellPrice = this.searchGoodsArray[index].docsp
-			this.onLoadGoodsMsg(this.searchGoodsArray[index].dspid)
+			this.selectGoodsId = this.searchGoodsArray[index].dspid
+			this.onLoadGoodsMsg()
 			this.showGoodsSearch = false
 		}
-
 	}
 }
 </script>

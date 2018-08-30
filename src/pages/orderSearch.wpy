@@ -39,7 +39,7 @@
 				</view>
 				<view class="line"></view>
 				<repeat for="{{item.dataItem}}" key="index" index="index" item="items">
-					<view @tap.stop="onItemClick" data-items="{{items}}" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
+					<view @tap.stop="onItemClick" data-item="{{item}}" data-items="{{items}}" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
 						<text style="text-align:center;width:30%;">{{items.danjbh}}</text>
 						<text style="text-align:center;width:30%;">{{items.riqi}}</text>
 						<text style="text-align:center;width:30%;">{{items.jine}}</text>
@@ -85,7 +85,7 @@ export default class OrderSearch extends wepy.page{
 		startDate:'2018-08-12',
 		endDate:'2020-08-12',
 		msg:[],
-		total:20156,
+		total:0,
 		showCustSearch:false,
 		searchCustNameList:[],
 		isEmpty:false,
@@ -149,6 +149,7 @@ export default class OrderSearch extends wepy.page{
 			this.custId = this.searchCustNameList[0].ddwid
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
+			this.currentPage = 0
 			this.onLoadOrderMsg(this.startDate,this.endDate,this.custId,0)
 		}else{
 			// 多条客户数据，显示弹窗
@@ -166,9 +167,6 @@ export default class OrderSearch extends wepy.page{
 	 * 加载客户名称数据
 	 */
 	async onLoadOrderMsg(sq,eq,custId,page){
-		if(page==0){
-			this.msg = [];
-		}
 		const json = await api.orderQuery({
 			query:{
 				fBegDate:sq,
@@ -179,8 +177,13 @@ export default class OrderSearch extends wepy.page{
 		})
 		console.log("orderQuery===",json)
 		if(json.data.code==0){
+			if(page==0){
+				this.msg = [];
+			}
+			
 			// 先判断遍历的这行数据跟msg中最后一行数据的ddwname是否相同，如果相同则push到msg最后一行数据的dataItem中
 			for(let i = 0; i<json.data.data.length;i++){
+				this.total = json.data.data[0].hjje
 				if(this.msg.length > 0){
 					if(this.msg[this.msg.length-1].ddwname == json.data.data[i].ddwname){
 						let dataItem = {}
@@ -227,9 +230,10 @@ export default class OrderSearch extends wepy.page{
 	methods = {
 		onItemClick(e){
 			let items = e.currentTarget.dataset.items
-			console.log("items===",items)
+			let item = e.currentTarget.dataset.item
+			console.log("items===",items,item)
 			wx.navigateTo({
-				url:'orderDetail?orderNo='+items.danjbh
+				url:'orderDetail?orderNo='+items.danjbh+'&custName='+item.ddwname
 			})
 		},
 		touchCustMask(e){
