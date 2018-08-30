@@ -3,7 +3,7 @@
 	<view class="top_container">
 		<view class="search_container">
 			<i class="iconfont icon-search"></i>
-			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入客户名称" placeholder-style="color:#d6dde6" bindblur="inputFinish" bindconfirm="searchConfirm" />
+			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入客户名称" placeholder-style="color:#d6dde6" bindblur="inputFinish" bindconfirm="searchConfirm" value="{{searchContent}}" />
 		</view>
 		<view class="btn_search" @tap="searchConfirm">搜索</view>
 	</view>
@@ -145,12 +145,15 @@ export default class OrderSearch extends wepy.page{
 		// }
 		console.log("searchCustNameList===",this.searchCustNameList)
 
-		if(this.searchCustNameList.length<=1){
+		if(this.searchCustNameList.length==1){
 			this.custId = this.searchCustNameList[0].ddwid
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
+			this.searchContent = this.searchCustNameList[0].ddwname
 			this.currentPage = 0
 			this.onLoadOrderMsg(this.startDate,this.endDate,this.custId,0)
+		}else if(this.searchCustNameList.length==0){
+			tip.toast('客户名称不存在!')
 		}else{
 			// 多条客户数据，显示弹窗
 			 this.showCustSearch = true

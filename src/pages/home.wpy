@@ -3,33 +3,44 @@
 	<view class="model">
 		<view class="model_child" @tap="onOrderSearchClick">
 			<i class="iconfont icon-order" style="color:#0175fd"></i>
-			<text>订单查询</text>
+			<text>出库查询</text>
 		</view>
 		<view class="model_child" @tap="onGoodsSearchClick">
 			<i class="iconfont icon-goods" style="color:#ffc400"></i>
-			<text>商品查询</text>			
+			<text>库存查询</text>			
 		</view>
 	</view>
 	<view class="font">库存</view>
 	<view class="model">
 		<view class="model_child" @tap="onStopClick">
-			<i class="iconfont icon-stock" style="color:#cddc39"></i>
-			<text>库存管理</text>
+			<i class="iconfont icon-instock" style="color:#cddc39"></i>
+			<text>入库验收</text>
+		</view>
+		<view class="model_child" @tap="onStopClick">
+			<i class="iconfont icon-outstock" style="color:#009688"></i>
+			<text>出库复核</text>
+		</view>
+	</view>
+	<view class="font">客户报备</view>
+	<view class="model">
+		<view class="model_child" @tap="onStopClick">
+			<i class="iconfont icon-cust" style="color:#03a9f4"></i>
+			<text>客户报备</text>
 		</view>
 	</view>
 	<view class="font">财务</view>
 	<view class="model">
 		<view class="model_child" @tap="onStopClick">
 			<i class="iconfont icon-pay" style="color:#e51c23"></i>
-			<text>应付管理</text>
+			<text>应付查询</text>
 		</view>
 		<view class="model_child" @tap="onStopClick">
 			<i class="iconfont icon-gather" style="color:#259b24"></i>
-			<text>应收管理</text>			
+			<text>应收查询</text>			
 		</view>
 		<view class="model_child" @tap="onStopClick">
-			<i class="iconfont icon-balance" style="color:#ffc400"></i>
-			<text>余额管理</text>			
+			<i class="iconfont icon-stream" style="color:#ffc400"></i>
+			<text>流水查询</text>			
 		</view>
 	</view>
 </template>
@@ -65,7 +76,7 @@ export default class Home extends wepy.page{
 
 		onStopClick(){
 			app.aldstat.sendEvent('未开放功能',{'key':'value'})
-			tip.toast("功能开发中")
+			tip.toast("该模块需要另行购买！")
 		}
 	}
 }

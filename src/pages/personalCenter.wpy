@@ -21,7 +21,7 @@ export default class PersonalCenter extends wepy.page{
 	}
 
 	data = {
-		firstName:'智灵科技',
+		firstName:'CloudERP',
 		logo:'../images/zhiling_logo.png',
 		expiryTime:'2019-08-19',
 		userNum:'10'

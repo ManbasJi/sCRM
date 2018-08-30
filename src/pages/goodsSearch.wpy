@@ -185,11 +185,14 @@ export default class GoodsSearch extends wepy.page{
 		}
 		console.log("searchGoodsArray===",this.searchGoodsArray)
 
-		if(this.searchGoodsArray.length<=1){
+		if(this.searchGoodsArray.length==1){
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
+			
 			this.selectGoodsId = this.searchGoodsArray[0].dspid
 			this.onLoadGoodsMsg()
+		}else if(this.searchGoodsArray.length==0){
+			tip.toast("商品名称不存在!")
 		}else{
 			// 多条客户数据，显示弹窗
 			this.showGoodsSearch = true
