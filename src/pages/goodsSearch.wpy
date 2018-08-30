@@ -3,7 +3,7 @@
 	<view class="top_container">
 		<view class="search_container">
 			<i class="iconfont icon-search"></i>
-			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入商品名称" placeholder-style="color:#d6dde6"  bindconfirm="searchConfirm" bindblur="inputFinish" />
+			<input type="text" name="searchContent" confirm-type="搜索" placeholder="请输入商品名称" placeholder-style="color:#d6dde6"  bindconfirm="searchConfirm" bindblur="inputFinish" value="{{searchContent}}" />
 		</view>
 		<view class="btn_search" @tap="searchConfirm">搜索</view>
 	</view>
@@ -22,8 +22,7 @@
 	</view>
 	<view class="line"></view>
 	<scroll-view scroll-y="true" class="swiper-item-box" bindscrolltoupper="onRefreshData" bindscrolltolower="onReachBottom" style="height:{{windowHeight-102}}px">
-	<view class="middle_container">
-		<repeat for="{{msg}}" key="index" index="index" item="item">
+	<view class="middle_container" wx:if="{{!isEmpty}}">
 			<view class="list_item">
 				<view style="display:flex;align-items:center;justify-content:space-between;margin-top:20rpx;margin-bottom:20rpx;">
 					<text style="text-align:center;width:30%;">库房名称</text>
@@ -31,7 +30,7 @@
 					<text style="text-align:center;width:30%;">数量</text>
 				</view>
 				<view class="line"></view>
-				<repeat for="{{item.dataItem}}" key="index" index="index" item="items">
+				<repeat for="{{msg}}" key="index" index="index" item="items">
 					<view @tap.stop="onItemClick" data-index="{{index}}" style="display:flex;align-items:center;justify-content:space-between;margin-top:25rpx;">
 						<text style="text-align:center;width:30%;">{{items.dkfname}}</text>
 						<text style="text-align:center;width:30%;">{{items.color}}</text>
@@ -39,7 +38,6 @@
 					</view>
 				</repeat>
 			</view>
-		</repeat>
 	</view>
 	<view style="text-align:center;margin-top:100rpx;" wx:if="{{isEmpty}}">
 		<i class="iconfont icon-error" style="font-size:90rpx;color:#dce6ee"></i>
@@ -99,7 +97,7 @@ export default class GoodsSearch extends wepy.page{
 
 	bindPickerChange(e){
 		let index = e.detail.value
-		this.selectWare = this.wareArray[index].dkfName
+		this.selectWare = this.wareArray[index].dkfname
 		this.selectWareId = this.wareArray[index].dkfid
 		if(this.searchContent!=''){
 			this.onLoadGoodsMsg()
@@ -127,7 +125,7 @@ export default class GoodsSearch extends wepy.page{
 		// 加载所有仓库信息
 		const json = await api.queryStoreHouse({
 			query:{
-				 fStorehouse:''
+				fStorehouse:''
 			}
 		})
 		console.log("onLoadWareHouse===",json)
@@ -135,10 +133,10 @@ export default class GoodsSearch extends wepy.page{
 			this.wareArray = json.data.data
 		}
 		for(let i = 0;i<this.wareArray.length;i++){
-			this.wareNameArray.push(this.wareArray.dkfName)
+			this.wareNameArray.push(this.wareArray[i].dkfname)
 		}
 		//默认选中第一个
-		this.selectWare = this.wareArray[0].dkfName
+		this.selectWare = this.wareArray[0].dkfname
 		this.selectWareId = this.wareArray[0].dkfid
 		this.$apply()
 	}
@@ -148,6 +146,7 @@ export default class GoodsSearch extends wepy.page{
 	 * @desc 查询商品信息接口
 	 */
 	async onLoadGoodsMsg(){
+		console.log(this.selectGoodsId,this.selectWareId)
 		const json = await api.queryGoodsDetail({
 			query:{
 				fGoodsId:this.selectGoodsId,
@@ -156,13 +155,17 @@ export default class GoodsSearch extends wepy.page{
 		})
 		console.log("onLoadGoodsMsg===",json)
 		if(json.data.code==0){
-			this.msg = json.data.code
+			this.msg = json.data.data
+			if(json.data.data.length!=0){
+				this.sellPrice = json.data.data[0].hjje
+			}
 		}
 		if(this.msg.length>0){
 			this.isEmpty = false
 		}else{
 			this.isEmpty = true
 		}	
+		console.log("this.msg",this.msg)
 		this.$apply()	
 	}
 
@@ -185,7 +188,6 @@ export default class GoodsSearch extends wepy.page{
 		if(this.searchGoodsArray.length<=1){
 			// 只有一条客户数据，不显示弹窗，直接查询该客户订单信息
 			// 调用接口
-			this.sellPrice = this.searchGoodsArray[0].docsp
 			this.selectGoodsId = this.searchGoodsArray[0].dspid
 			this.onLoadGoodsMsg()
 		}else{
@@ -198,9 +200,12 @@ export default class GoodsSearch extends wepy.page{
 	methods = {
 		onCustNameClick(e){
 			let index = e.currentTarget.dataset.index
-			this.sellPrice = this.searchGoodsArray[index].docsp
 			this.selectGoodsId = this.searchGoodsArray[index].dspid
+			this.searchContent = this.searchGoodsArray[index].dspname
 			this.onLoadGoodsMsg()
+			this.showGoodsSearch = false
+		},
+		touchCustMask(e){
 			this.showGoodsSearch = false
 		}
 	}
